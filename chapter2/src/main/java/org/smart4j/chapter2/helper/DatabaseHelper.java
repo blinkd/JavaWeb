@@ -188,7 +188,7 @@ public class DatabaseHelper {
             return false;
         }
 
-        String sql = "INSERT INTO" + getTableName(entityClass);
+        String sql = "INSERT INTO " + getTableName(entityClass);
         StringBuilder columns = new StringBuilder("(");
         StringBuilder values = new StringBuilder("(");
         for(String fieldName:fieldMap.keySet()){
@@ -198,6 +198,8 @@ public class DatabaseHelper {
         columns.replace(columns.lastIndexOf(","),columns.length(),")");
         values.replace(values.lastIndexOf(","),values.length(), ")");
         sql += columns + "VALUES" + values;
+
+        System.out.println("sqlContent" + sql);
 
         Object[] params = fieldMap.values().toArray();
         return executeUpdate(sql,params) == 1;
@@ -213,7 +215,7 @@ public class DatabaseHelper {
             return false;
         }
 
-        String sql = "UPDATE" + getTableName(entityClass) + "SET";
+        String sql = "UPDATE " + getTableName(entityClass) + " SET ";
         StringBuilder columns = new StringBuilder();
         for(String fieldName:fieldMap.keySet()){
             columns.append(fieldName).append("=?,");
@@ -224,6 +226,9 @@ public class DatabaseHelper {
         paramList.addAll(fieldMap.values());
         paramList.add(id);
         Object[] params = paramList.toArray();
+
+        System.out.println("sqlContent" + sql);
+
         return executeUpdate(sql, params) == 1;
     }
 
@@ -232,7 +237,7 @@ public class DatabaseHelper {
      *
      */
     public static <T> boolean deleteEntity(Class<T> entityClass, long id){
-        String sql = "DELETE FROM" + getTableName(entityClass) + "WHERE id = ?";
+        String sql = "DELETE FROM " + getTableName(entityClass) + " WHERE id = ?";
         return executeUpdate(sql,id) == 1;
     }
 
