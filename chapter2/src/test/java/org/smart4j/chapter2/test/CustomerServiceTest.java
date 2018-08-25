@@ -3,9 +3,16 @@ package org.smart4j.chapter2.test;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.smart4j.chapter2.helper.DatabaseHelper;
 import org.smart4j.chapter2.model.Customer;
 import org.smart4j.chapter2.service.CustomerService;
 
+import javax.imageio.IIOException;
+import javax.xml.crypto.Data;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,13 +30,26 @@ public class CustomerServiceTest {
 
      @Before
      public void init(){
-         //初始化数据类
+         String file = "sql/customer_init.sql";
+         DatabaseHelper.executeSqlFile(file);
+//         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(file);
+//         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+//         String sql;
+//         try{
+//             while ((sql=reader.readLine()) != null){
+//                 DatabaseHelper.executeUpdate(sql);
+//             }
+//         }catch (IOException e){
+//
+//         }
      }
+
 
      @Test
      public void getCustomerListTest() throws Exception{
          List<Customer> customerList = customerService.getCustomerList();
-         Assert.assertEquals(0,customerList.size());
+         System.out.println("customer_list" + customerList.toArray().toString());
+         Assert.assertEquals(2,customerList.size());
      }
 
      @Test
@@ -55,6 +75,8 @@ public class CustomerServiceTest {
          Map<String, Object> fieldMap = new HashMap<String, Object>();
          fieldMap.put("contact","Eric");
          boolean result = customerService.updateCustomer(id,fieldMap);
+         System.out.println("updateResult :" + String.valueOf(result));
+
          Assert.assertTrue(result);
      }
 

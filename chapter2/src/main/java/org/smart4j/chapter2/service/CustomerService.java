@@ -9,10 +9,21 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.smart4j.chapter2.helper.DatabaseHelper;
 import org.smart4j.chapter2.model.Customer;
 import org.smart4j.chapter2.util.PropsUtil;
 
+import javax.xml.crypto.Data;
+
 import static com.sun.xml.internal.ws.spi.db.BindingContextFactory.LOGGER;
+
+/**
+ *customerSerice 类中读取config.properties文件是不合理的 以后很多service类都需要做同样的事情  添加DatabaseHelper 类与方法提供数据库的连接与关闭
+ *
+ *执行一条sql需要用try..catch 捕捉  效率不高  用DbUtils工具来封装现有的sql方法
+ */
+
+
 
 
 /**
@@ -24,24 +35,6 @@ public class CustomerService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomerService.class);
 
-    private static final String DRIVER;
-    private static final String URL;
-    private static final String USERNAME;
-    private static final String PASSWORD;
-
-    static {
-        Properties conf = PropsUtil.loadProps("config.properties");
-        DRIVER = conf.getProperty("jdbc.driver");
-        URL = conf.getProperty("jdbc.url");
-        USERNAME = conf.getProperty("jdbc.username");
-        PASSWORD = conf.getProperty("jdbc.password");
-
-        try{
-            Class.forName(DRIVER);
-        }catch (ClassNotFoundException e){
-            LOGGER.error("can not load jdbc driver",e);
-        }
-    }
 
 
     /**
@@ -49,38 +42,11 @@ public class CustomerService {
      *
      */
     public List<Customer> getCustomerList(){
+
         Connection conn = null;
-        List<Customer> customerList = new ArrayList<Customer>();
-        try{
+        String sql = "SELECT * FROM customer";
+        return DatabaseHelper.queryEntityList(Customer.class,sql);
 
-            String sql = "SELECT * FROM customer";
-            conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()){
-                Customer customer = new Customer();
-                customer.setId(rs.getLong("id"));
-                customer.setName(rs.getString("name"));
-                customer.setContact(rs.getString("contact"));
-                customer.setEmail(rs.getString("email"));
-                customer.setTelephone(rs.getString("telephone"));
-                customer.setRemark(rs.getString("remark"));
-                customerList.add(customer);
-            }
-
-        }catch (SQLException e){
-            LOGGER.error("execute sql failure", e);
-        }finally {
-
-            if(conn!=null){
-                try{
-                    conn.close();
-                }catch (SQLException e){
-                    LOGGER.error("close connection failure",e);
-                }
-            }
-            return customerList;
-        }
 
     }
 
@@ -97,7 +63,7 @@ public class CustomerService {
      *
      */
     public boolean createCustomer(Map<String, Object> fieldMap){
-        return false;
+        return DatabaseHelper.insertEntity(Customer.class,fieldMap);
     }
 
     /**
@@ -105,7 +71,7 @@ public class CustomerService {
      *
      */
     public boolean updateCustomer(long id,Map<String, Object> fieldMap){
-        return false;
+        return DatabaseHelper.updateEntity(Customer.class,id,fieldMap);
     }
 
     /**
@@ -113,6 +79,6 @@ public class CustomerService {
      *
      */
     public boolean deleteCustomer(long id){
-        return false;
+        return DatabaseHelper.deleteEntity(Customer.class,id);
     }
 }
